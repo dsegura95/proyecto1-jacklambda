@@ -15,7 +15,7 @@ instance Show Palo where
     show Picas = "♠"
     show Corazones = "♥"
 
-data Rango = N Int | Jack | Queen | King | Ace 
+data Rango = N Int | Jack | Queen | King | Ace deriving (Eq)
 
 instance Show Rango where
     show Jack = "J"
@@ -85,8 +85,12 @@ busted :: Mano -> Bool
 busted a = if valor a > 21 then True else False
 
 blackjack :: Mano -> Bool
-blackjack m = True
+blackjack m = if courtCards m && valor m == 21 && cantidadCartas m == 2 then True else False
 
 -- Auxiliar
 courtCards :: Mano -> Bool
-courtCards (Mano c) = if (Carta Jack Palo) `elem` c || (Carta Queen Palo) `elem` c || (Carta King Palo) `elem` c then True else False
+courtCards (Mano []) = False
+courtCards (Mano ((Carta rango palo):xs)) | rango == Jack = True
+                                          | rango == Queen = True
+                                          | rango == King = True
+                                          | otherwise = courtCards(Mano xs)
