@@ -104,3 +104,15 @@ ganador dealer jugador | valor dealer > valor jugador = Dealer
                        | valor jugador > valor dealer = Player
                        | valor dealer == valor jugador = if blackjack jugador then Player else Dealer
 
+separar :: Mano -> (Mano, Carta, Mano)
+separar (Mano cartas) = if odd c 
+                        then (Mano (tomar1Mitad cartas (div c 2)),cartas !! (div c 2),Mano (tomar2Mitad cartas (div c 2))) 
+                        else (Mano (tomar1Mitad cartas (div c 2)),cartas !! (div c 2),Mano (tomar2Mitad cartas (div c 2)))
+                        where c = cantidadCartas (Mano cartas)
+
+-- Auxiliar
+tomar1Mitad :: [Carta] -> Int -> [Carta]
+tomar1Mitad list n = if length list > n then tomar1Mitad (init list) n else list
+-- Auxiliar
+tomar2Mitad :: [Carta] -> Int -> [Carta]
+tomar2Mitad list n = if length list > n then tomar2Mitad (tail list) n else list
