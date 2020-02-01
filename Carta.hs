@@ -6,8 +6,11 @@ Autores:
 
 -}
 
+import System.Random
+import Data.List
+
 -- CARTAS
-data Palo = Treboles | Diamantes | Picas | Corazones deriving (Enum)
+data Palo = Treboles | Diamantes | Picas | Corazones deriving (Enum,Eq)
 
 instance Show Palo where
     show Treboles = "♣"
@@ -27,7 +30,7 @@ instance Show Rango where
 data Carta = Carta {
     rango :: Rango,
     palo :: Palo
-}
+}deriving Eq
 
 instance Show Carta where
     show (Carta rango palo) = show palo ++ show rango
@@ -116,3 +119,14 @@ tomar1Mitad list n = if length list > n then tomar1Mitad (init list) n else list
 -- Auxiliar
 tomar2Mitad :: [Carta] -> Int -> [Carta]
 tomar2Mitad list n = if length list > n then tomar2Mitad (tail list) n else list
+
+barajar :: StdGen -> Mano -> Mano
+barajar gen m = barajarListas gen m (Mano [])
+
+barajarListas :: StdGen -> Mano -> Mano -> Mano
+barajarListas gen (Mano []) acum = acum
+barajarListas gen (Mano m) (Mano acum) = barajarListas gen (Mano newM) (Mano newAcum)
+    where value = randomR (0,(cantidadCartas (Mano m))-1) gen
+          cartaAleatoria = m !! fst value
+          newAcum = cartaAleatoria:acum
+          newM = delete cartaAleatoria m
