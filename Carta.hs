@@ -34,7 +34,11 @@ instance Show Carta where
 
 -- JUGADOR
 
-data Jugador = Dealer | Player deriving(Show,Read) -- PENDIENTE
+data Jugador = Dealer | Player deriving Read -- PENDIENTE
+
+instance Show Jugador where
+    show Dealer = "Dealer"
+    show Player = "Player"
 
 -- MANO
 
@@ -94,3 +98,9 @@ courtCards (Mano ((Carta rango palo):xs)) | rango == Jack = True
                                           | rango == Queen = True
                                           | rango == King = True
                                           | otherwise = courtCards(Mano xs)
+
+ganador :: Mano -> Mano -> Jugador
+ganador dealer jugador | valor dealer > valor jugador = Dealer
+                       | valor jugador > valor dealer = Player
+                       | valor dealer == valor jugador = if blackjack jugador then Player else Dealer
+
