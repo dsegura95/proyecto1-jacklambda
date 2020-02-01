@@ -134,3 +134,26 @@ barajarListas gen (Mano m) (Mano acum) = barajarListas gen (Mano newM) (Mano new
 
 inicialLambda :: Mano -> (Mano, Mano)
 inicialLambda (Mano m) = (Mano (take 2 m), Mano (drop 2 m))
+
+--------------------------------- MAZO --------------------------------- 
+data Mazo = Vacio | Mitad Carta Mazo Mazo deriving Show
+
+data Eleccion = Izquierdo | Derecho
+
+desdeMano :: Mano -> Mazo
+desdeMano (Mano []) = Vacio
+desdeMano (Mano m) = Mitad carta (desdeMano mazo1) (desdeMano mazo2)
+    where tripla = separar (Mano m)
+          carta = snd3 tripla
+          mazo1 = fst3 tripla
+          mazo2 = trd3 tripla
+
+-- Auxiliar
+fst3 :: (Mano,Carta,Mano) -> Mano
+fst3 (a,b,c) = a
+-- Auxiliar
+snd3 :: (Mano,Carta,Mano) -> Carta
+snd3 (a,b,c) = b
+-- Auxiliar
+trd3 :: (Mano,Carta,Mano) -> Mano
+trd3 (a,b,c) = c 
