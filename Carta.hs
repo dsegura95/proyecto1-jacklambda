@@ -110,7 +110,7 @@ ganador dealer jugador | valor dealer > valor jugador = Dealer
 separar :: Mano -> (Mano, Carta, Mano)
 separar (Mano cartas) = if odd c 
                         then (Mano (tomar1Mitad cartas (div c 2)),cartas !! (div c 2),Mano (tomar2Mitad cartas (div c 2))) 
-                        else (Mano (tomar1Mitad cartas (div c 2)),cartas !! (div c 2),Mano (tomar2Mitad cartas (div c 2)))
+                        else (Mano (tomar1Mitad cartas (div c 2)),cartas !! (div c 2),Mano (tomar2Mitad cartas ((div c 2)-1)))
                         where c = cantidadCartas (Mano cartas)
 
 -- Auxiliar
@@ -123,6 +123,7 @@ tomar2Mitad list n = if length list > n then tomar2Mitad (tail list) n else list
 barajar :: StdGen -> Mano -> Mano
 barajar gen m = barajarListas gen m (Mano [])
 
+-- Auxiliar
 barajarListas :: StdGen -> Mano -> Mano -> Mano
 barajarListas gen (Mano []) acum = acum
 barajarListas gen (Mano m) (Mano acum) = barajarListas gen (Mano newM) (Mano newAcum)
@@ -130,3 +131,6 @@ barajarListas gen (Mano m) (Mano acum) = barajarListas gen (Mano newM) (Mano new
           cartaAleatoria = m !! fst value
           newAcum = cartaAleatoria:acum
           newM = delete cartaAleatoria m
+
+inicialLambda :: Mano -> (Mano, Mano)
+inicialLambda (Mano m) = (Mano (take 2 m), Mano (drop 2 m))
