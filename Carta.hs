@@ -1,10 +1,28 @@
 {-
-BLACKJACK
+BLACKJACK MODULO
 Autores:
 -- David Segura #13-11341
 -- Ian Goldberg
 
 -}
+module Carta
+( vacia
+, baraja
+, cantidadCartas
+, valor
+, busted
+, blackjack
+, ganador
+, separar
+, barajar
+, inicialLambda
+, desdeMano
+, puedePicar
+, aplanar
+, reconstruir
+, robar
+, juegaLambda
+) where
 
 import System.Random
 import Data.List
