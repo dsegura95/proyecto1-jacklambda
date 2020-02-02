@@ -172,3 +172,6 @@ aplanarM (Mitad carta mazo1 Vacio) m = carta:(aplanarM mazo1 m)
 aplanarM (Mitad carta mazo1 mazo2) m = aplanarM mazo2 mano1
     where mano1 = carta:(aplanarM mazo1 m) 
 
+reconstruir :: Mazo -> Mano -> Mazo
+reconstruir mazo (Mano mano) = desdeMano (Mano (reverse(aplanarM mazo []) \\ mano))
+
