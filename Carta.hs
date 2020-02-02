@@ -161,3 +161,14 @@ trd3 (a,b,c) = c
 puedePicar :: Mazo -> Bool
 puedePicar Vacio = False
 puedePicar (Mitad carta mazo1 mazo2) = if mazo1 /= Vacio && mazo2 /= Vacio then True else False 
+
+aplanar :: Mazo -> Mano
+aplanar m = Mano (reverse (aplanarM m []))
+
+--Auxiliar
+aplanarM :: Mazo -> [Carta] -> [Carta]
+aplanarM (Mitad carta Vacio Vacio) m = carta:m
+aplanarM (Mitad carta mazo1 Vacio) m = carta:(aplanarM mazo1 m)
+aplanarM (Mitad carta mazo1 mazo2) m = aplanarM mazo2 mano1
+    where mano1 = carta:(aplanarM mazo1 m) 
+
