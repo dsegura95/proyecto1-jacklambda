@@ -136,7 +136,7 @@ inicialLambda :: Mano -> (Mano, Mano)
 inicialLambda (Mano m) = (Mano (take 2 m), Mano (drop 2 m))
 
 --------------------------------- MAZO --------------------------------- 
-data Mazo = Vacio | Mitad Carta Mazo Mazo deriving Show
+data Mazo = Vacio | Mitad Carta Mazo Mazo deriving (Show, Eq)
 
 data Eleccion = Izquierdo | Derecho
 
@@ -157,3 +157,7 @@ snd3 (a,b,c) = b
 -- Auxiliar
 trd3 :: (Mano,Carta,Mano) -> Mano
 trd3 (a,b,c) = c 
+
+puedePicar :: Mazo -> Bool
+puedePicar Vacio = False
+puedePicar (Mitad carta mazo1 mazo2) = if mazo1 /= Vacio && mazo2 /= Vacio then True else False 
