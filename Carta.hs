@@ -138,7 +138,7 @@ inicialLambda (Mano m) = (Mano (take 2 m), Mano (drop 2 m))
 --------------------------------- MAZO --------------------------------- 
 data Mazo = Vacio | Mitad Carta Mazo Mazo deriving (Show, Eq)
 
-data Eleccion = Izquierdo | Derecho
+data Eleccion = Izquierdo | Derecho deriving (Read)
 
 desdeMano :: Mano -> Mazo
 desdeMano (Mano []) = Vacio
@@ -175,3 +175,19 @@ aplanarM (Mitad carta mazo1 mazo2) m = aplanarM mazo2 mano1
 reconstruir :: Mazo -> Mano -> Mazo
 reconstruir mazo (Mano mano) = desdeMano (Mano (reverse(aplanarM mazo []) \\ mano))
 
+robar :: Mazo -> Mano -> Eleccion -> Maybe(Mazo,Mano)
+robar (Mitad carta mazo1 mazo2) jugador Derecho = if mazo2 /= Vacio then Just (mazo2, (incluir carta jugador)) else Nothing
+robar (Mitad carta mazo1 mazo2) jugador Izquierdo = if mazo1 /= Vacio then Just (mazo1, (incluir carta jugador)) else Nothing
+
+--Auxiliar
+incluir :: Carta -> Mano ->  Mano
+incluir carta (Mano m) = Mano (carta:m)
+
+juegaLambda :: Mazo -> Mano -> Maybe Mano
+juegaLambda Vacio dealer = Nothing
+juegaLambda mazo dealer = if valor dealer > 15 then Just dealer else juegaLambda (reconstruir mazo newDealer) newDealer
+    where newDealer = incluir (primeraCartaMazo mazo) dealer
+
+--Auxiliar
+primeraCartaMazo :: Mazo -> Carta
+primeraCartaMazo (Mitad carta mazo1 mazo2) = carta
