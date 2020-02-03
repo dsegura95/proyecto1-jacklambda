@@ -38,19 +38,31 @@ mainLoop = do
 
 iniciarPartida :: IO () 
 iniciarPartida = do 
-					putStrLn "Ingrese un nombre de usuario:"
-					nombreJ <- getLine
-					putStrLn "Ingrese un monto de dinero:"
-					dineroJ <- readLn
-					putStrLn "Ingrese el monto de dinero necesario para ganar:"
-					objetivoJ <- readLn
-					putStrLn "Ingrese cuánto dinero desea apostar por ronda:"
-					apuestaJ <- readLn
-					gen <- getStdGen
-					let zero = 0
-					let zero1 = 0
-					let state = GS zero zero1 nombreJ gen dineroJ objetivoJ apuestaJ
-					gameMenu state
+	putStrLn "Ingrese un nombre de usuario:"
+	nombreJ <- getLine
+	putStrLn "Ingrese un monto de dinero:"
+	dineroJ <- readLn
+	if dineroJ < 1 then do
+		putStrLn ">>> ERROR: El monto debe ser mayor que 0 <<<"
+		iniciarPartida
+	else do
+		putStrLn "Ingrese el monto de dinero necesario para ganar:"
+		objetivoJ <- readLn
+		if objetivoJ <= dineroJ then do
+			putStrLn ">>> El objetivo debe ser mayor que el dinero del jugador <<<"
+			iniciarPartida
+		else do
+			putStrLn "Ingrese cuánto dinero desea apostar por ronda:"
+			apuestaJ <- readLn
+			if apuestaJ < 1 || apuestaJ > dineroJ then do
+				putStrLn ">>> Esa cantidad no puede ser mayor que la cantidad dinero que tiene el jugador <<<"
+				iniciarPartida
+			else do
+				gen <- getStdGen
+				let zero = 0
+				let zero1 = 0
+				let state = GS zero zero1 nombreJ gen dineroJ objetivoJ apuestaJ
+				gameMenu state
 
 gameMenu :: GameState -> IO () 
 gameMenu state = do
@@ -83,7 +95,7 @@ guardarPartida state = do
 	hPutStrLn handle (show (juegosJugados state) ++ " " ++ show (victoriasLambda state) ++ " " ++ nombre state ++ " " ++ show (dinero state) ++ " " ++ show (objetivo state) ++ " " ++ show (apuesta state))
 	hClose handle
 
-cargarPartida :: IO () {- PENDIENTE -}
+cargarPartida :: IO ()
 cargarPartida = do  
 	putStrLn "Ingrese el nombre del fichero que contiene la partida: "
 	ficheroAux <- getLine
@@ -91,7 +103,6 @@ cargarPartida = do
 	handle <- openFile fichero ReadMode
 	contents <- hGetContents handle
 	let allWords = words contents
-	print allWords
 	hClose handle
 	gen <- getStdGen
 	let victoriasJ = read (allWords !! 0)
