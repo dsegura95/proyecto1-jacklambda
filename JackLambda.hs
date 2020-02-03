@@ -69,7 +69,10 @@ gameMenu state = do
 
 jugarRonda :: GameState -> IO ()
 jugarRonda state = do 
-	putStrLn "Por implementar"
+	let newDinero = (dinero state) - (apuesta state)
+	let newJuegosJugados = (juegosJugados state) - 1
+	let newState = GS (newJuegosJugados) (victoriasLambda state) (nombre state) (generador state) (newDinero) (objetivo state) (apuesta state)
+	putStrLn "hola"
 
 guardarPartida :: GameState -> IO ()
 guardarPartida state = do 
