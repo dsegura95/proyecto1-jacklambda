@@ -42,18 +42,41 @@ iniciarPartida = do
 					nombreJ <- getLine
 					putStrLn "Ingrese un monto de dinero:"
 					dineroJ <- readLn
-					putStrLn "Ingrese el monto de dinero necesario para ganar:"
-					objetivoJ <- readLn
-					putStrLn "Ingrese cuánto dinero desea apostar por ronda:"
-					apuestaJ <- readLn
-					gen <- getStdGen
-					let zero = 0
-					let zero1 = 0
-					let state = GS zero zero1 nombreJ gen dineroJ objetivoJ apuestaJ
-					gameMenu state
+					if dineroJ < 1 then do
+						putStrLn "ALERTA! Ingrese una cantidad positiva como monto de dinero:"
+						iniciarPartida
+					else do
+						putStrLn "Ingrese el monto de dinero necesario para ganar:"
+						objetivoJ <- readLn
+						if objetivoJ < dineroJ then do
+							putStrLn "ALERTA! Ingrese una cantidad objetivo mayor que la cantidad de dinero que se posee:"
+							iniciarPartida
+						else do
+							putStrLn "Ingrese cuánto dinero desea apostar por ronda:"
+							apuestaJ <- readLn
+							if apuestaJ > dineroJ || apuestaJ < 1 then do
+								putStrLn "ALERTA! Ingrese una apuesta positiva menor a la cantidad de dinero inicial:"
+								iniciarPartida
+							else do
+								gen <- getStdGen
+								let zero = 0
+								let zero1 = 0
+								let state = GS zero zero1 nombreJ gen dineroJ objetivoJ apuestaJ
+								gameMenu state
 
 gameMenu :: GameState -> IO () 
 gameMenu state = do
+				let jugadas = juegosJugados state
+				let vLambda = victoriasLambda state
+				let vJugador = (juegosJugados state) - (victoriasLambda state)
+				let nombreJ = nombre state
+				let dineroJ = dinero state
+				putStrLn " "
+				putStrLn ("Se han jugado " ++ (show (jugadas)) ++ " partidas.")
+				putStrLn ("Jack Lambda ha ganado " ++ (show (vLambda)) ++ " partidas.")
+				putStrLn (nombreJ ++ " ha ganado " ++ (show (vJugador)) ++ " partidas.")
+				putStrLn (nombreJ ++ " tiene " ++ (show (dineroJ)) ++ " de dinero.")
+				putStrLn " "
 				putStrLn "1.- Jugar Ronda"
 				putStrLn "2.- Guardar Partida"
 				putStrLn "3.- Cargar Partida"
@@ -72,7 +95,12 @@ jugarRonda state = do
 	let newDinero = (dinero state) - (apuesta state)
 	let newJuegosJugados = (juegosJugados state) - 1
 	let newState = GS (newJuegosJugados) (victoriasLambda state) (nombre state) (generador state) (newDinero) (objetivo state) (apuesta state)
-	putStrLn "hola"
+	let barajaJ = baraja
+	let barajaJuego = barajar (generador state) barajaJ
+	let manosIniciales = inicialLambda barajaJuego
+	let manoLambda = fst(manosIniciales)
+	let resto = snd(manosIniciales) 
+	putStrLn ((nombre state) ++ ", esta es mi primera carta: " ++ (show (manoLambda)))
 
 guardarPartida :: GameState -> IO ()
 guardarPartida state = do 
@@ -83,7 +111,7 @@ guardarPartida state = do
 	hPutStrLn handle (show (juegosJugados state) ++ " " ++ show (victoriasLambda state) ++ " " ++ nombre state ++ " " ++ show (dinero state) ++ " " ++ show (objetivo state) ++ " " ++ show (apuesta state))
 	hClose handle
 
-cargarPartida :: IO () {- PENDIENTE -}
+cargarPartida :: IO ()
 cargarPartida = do  
 	putStrLn "Ingrese el nombre del fichero que contiene la partida: "
 	ficheroAux <- getLine
@@ -91,8 +119,6 @@ cargarPartida = do
 	handle <- openFile fichero ReadMode
 	contents <- hGetContents handle
 	let allWords = words contents
-	print allWords
-	hClose handle
 	gen <- getStdGen
 	let victoriasJ = read (allWords !! 0)
 	let victoriasL = read (allWords !! 1)
@@ -102,6 +128,7 @@ cargarPartida = do
 	let apuestaJ = read (allWords !! 5)
 	let state = GS victoriasJ victoriasL nombreJ gen dineroJ objetivoJ apuestaJ
 	gameMenu state
+	hClose handle
 	
 
 salirJuego :: IO ()
