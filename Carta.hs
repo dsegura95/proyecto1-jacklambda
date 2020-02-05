@@ -13,7 +13,6 @@ module Carta
 , busted
 , blackjack
 , ganador
-, separar
 , barajar
 , inicialLambda
 , desdeMano
@@ -22,6 +21,11 @@ module Carta
 , reconstruir
 , robar
 , juegaLambda
+, manoLista
+, Mano
+, Mazo
+, Eleccion
+, Jugador
 ) where
 
 import System.Random
@@ -63,7 +67,7 @@ instance Show Jugador where
 
 -- MANO
 
-newtype Mano = Mano [Carta] deriving Show
+newtype Mano = Mano [Carta] deriving (Show,Eq)
 
 -- Devuelve mano vacio
 vacia :: Mano
@@ -88,20 +92,21 @@ valorUnaCarta (Carta rango palo) = case rango of
 
 -- Auxiliar
 numberOfA :: Mano -> Int
-numberOfA (Mano []) = 0
-numberOfA (Mano ((Carta Ace palo):xs)) = 1 + numberOfA (Mano xs)
-numberOfA (Mano ((Carta _ palo):xs)) = numberOfA (Mano xs)
+numberOfA (Mano m) = length (filter (== 11) (map valorUnaCarta m))
 
 -- Auxiliar
 valorSinA :: Mano -> Int
-valorSinA (Mano []) = 0
-valorSinA (Mano (x:xs)) = valorUnaCarta x + valorSinA (Mano xs)
+valorSinA (Mano m) = foldl (+) 0 (map valorUnaCarta m)
 
 {- Función que aproxima la mano a la realidad, donde con AA9 se puede conseguir 21
 valorMasExacto :: Int -> Int -> Int
 valorA m 0 = m
 valorA m a = if m > 21 then (valorA (m-10) (a-1)) else m
 -}
+
+-- Auxiliar
+manoLista :: Mano -> [Carta]
+manoLista (Mano m) = m
 
 valor :: Mano -> Int
 valor m = if valorSinA m > 21 && numberOfA m > 0 then valorSinA m - 10 * numberOfA m else valorSinA m
@@ -156,7 +161,7 @@ inicialLambda (Mano m) = (Mano (take 2 m), Mano (drop 2 m))
 --------------------------------- MAZO --------------------------------- 
 data Mazo = Vacio | Mitad Carta Mazo Mazo deriving (Show, Eq)
 
-data Eleccion = Izquierdo | Derecho deriving (Read)
+data Eleccion = Izquierdo | Derecho deriving Read
 
 desdeMano :: Mano -> Mazo
 desdeMano (Mano []) = Vacio
@@ -194,8 +199,9 @@ reconstruir :: Mazo -> Mano -> Mazo
 reconstruir mazo (Mano mano) = desdeMano (Mano (reverse(aplanarM mazo []) \\ mano))
 
 robar :: Mazo -> Mano -> Eleccion -> Maybe(Mazo,Mano)
-robar (Mitad carta mazo1 mazo2) jugador Derecho = if mazo2 /= Vacio then Just (mazo2, (incluir carta jugador)) else Nothing
-robar (Mitad carta mazo1 mazo2) jugador Izquierdo = if mazo1 /= Vacio then Just (mazo1, (incluir carta jugador)) else Nothing
+robar Vacio jugador _ = Nothing
+robar (Mitad carta mazo1 mazo2) jugador Derecho = if mazo2 /= Vacio then Just (mazo2, (incluir carta jugador)) else Just (Vacio, (incluir carta jugador))
+robar (Mitad carta mazo1 mazo2) jugador Izquierdo = if mazo1 /= Vacio then Just (mazo1, (incluir carta jugador)) else Just (Vacio, (incluir carta jugador))
 
 --Auxiliar
 incluir :: Carta -> Mano ->  Mano
