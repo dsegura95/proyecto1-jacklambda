@@ -1,94 +1,93 @@
 {-
 BLACKJACK MAIN
 Autores:
+-- Jesus Kauze #12-10273
 -- David Segura #13-11341
 -- Ian Goldberg #14-10406
-
 -}
+
 import Carta
 import System.Random
 import System.IO
-import System.Exit
 
 data GameState = GS {
-                    juegosJugados :: Int,
-                    victoriasLambda :: Int,
-                    nombre :: String,
-                    generador :: StdGen,
-                    dinero :: Int,
-                    objetivo :: Int,
-                    apuesta :: Int
-                    } deriving (Show, Read)
+    juegosJugados :: Int,
+    victoriasLambda :: Int,
+    nombre :: String,
+    generador :: StdGen,
+    dinero :: Int,
+    objetivo :: Int,
+    apuesta :: Int
+    } deriving (Show, Read)
 
 main :: IO ()
 main = mainLoop
 
 mainLoop :: IO ()
 mainLoop = do 
-		  putStrLn "¿Desea cargar una partida? (Si/No)"
-		  answer <- getLine
-		  if answer == "Si" then 
-		  		cargarPartida
-		  else if answer == "No" then
-		  			iniciarPartida
-		  else 
-		  	   do
-		  			putStrLn "Ingrese una respuesta válida:"
-		  			mainLoop
+	putStrLn "¿Desea cargar una partida? (Si/No)"
+	answer <- getLine
+	if answer == "Si" then 
+		cargarPartida
+	else if answer == "No" then
+		iniciarPartida
+	else do
+				putStrLn "Ingrese una respuesta válida:"
+				mainLoop
 
 iniciarPartida :: IO () 
 iniciarPartida = do 
-					putStrLn "Ingrese un nombre de usuario:"
-					nombreJ <- getLine
-					putStrLn "Ingrese un monto de dinero:"
-					dineroJ <- readLn
-					if dineroJ < 1 then do
-						putStrLn "ALERTA! Ingrese una cantidad positiva como monto de dinero:"
-						iniciarPartida
-					else do
-						putStrLn "Ingrese el monto de dinero necesario para ganar:"
-						objetivoJ <- readLn
-						if objetivoJ < dineroJ then do
-							putStrLn "ALERTA! Ingrese una cantidad objetivo mayor que la cantidad de dinero que se posee:"
-							iniciarPartida
-						else do
-							putStrLn "Ingrese cuánto dinero desea apostar por ronda:"
-							apuestaJ <- readLn
-							if apuestaJ > dineroJ || apuestaJ < 1 then do
-								putStrLn "ALERTA! Ingrese una apuesta positiva menor a la cantidad de dinero inicial:"
-								iniciarPartida
-							else do
-								gen <- getStdGen
-								let zero = 0
-								let zero1 = 0
-								let state = GS zero zero1 nombreJ gen dineroJ objetivoJ apuestaJ
-								gameMenu state
+	putStrLn "Ingrese un nombre de usuario:"
+	nombreJ <- getLine
+	putStrLn "Ingrese un monto de dinero:"
+	dineroJ <- readLn
+	if dineroJ < 1 then do
+		putStrLn "ALERTA! Ingrese una cantidad positiva como monto de dinero:"
+		iniciarPartida
+	else do
+		putStrLn "Ingrese el monto de dinero necesario para ganar:"
+		objetivoJ <- readLn
+		if objetivoJ < dineroJ then do
+			putStrLn "ALERTA! Ingrese una cantidad objetivo mayor que la cantidad de dinero que se posee:"
+			iniciarPartida
+		else do
+			putStrLn "Ingrese cuánto dinero desea apostar por ronda:"
+			apuestaJ <- readLn
+			if apuestaJ > dineroJ || apuestaJ < 1 then do
+				putStrLn "ALERTA! Ingrese una apuesta positiva menor a la cantidad de dinero inicial:"
+				iniciarPartida
+			else do
+				gen <- getStdGen
+				let zero = 0
+				let zero1 = 0
+				let state = GS zero zero1 nombreJ gen dineroJ objetivoJ apuestaJ
+				gameMenu state
 
 gameMenu :: GameState -> IO () 
 gameMenu state = do
-				let jugadas = juegosJugados state
-				let vLambda = victoriasLambda state
-				let vJugador = (juegosJugados state) - (victoriasLambda state)
-				let nombreJ = nombre state
-				let dineroJ = dinero state
-				putStrLn " "
-				putStrLn ("Se han jugado " ++ (show (jugadas)) ++ " partidas.")
-				putStrLn ("Jack Lambda ha ganado " ++ (show (vLambda)) ++ " partidas.")
-				putStrLn (nombreJ ++ " ha ganado " ++ (show (vJugador)) ++ " partidas.")
-				putStrLn (nombreJ ++ " tiene " ++ (show (dineroJ)) ++ " de dinero.")
-				putStrLn " "
-				putStrLn "1.- Jugar Ronda"
-				putStrLn "2.- Guardar Partida"
-				putStrLn "3.- Cargar Partida"
-				putStrLn "4.- Salir"
-				putStrLn "Ingrese el número asociado a la opción deseada: "
-				answer <- getLine
+	let jugadas = juegosJugados state
+	let vLambda = victoriasLambda state
+	let vJugador = (juegosJugados state) - (victoriasLambda state)
+	let nombreJ = nombre state
+	let dineroJ = dinero state
+	putStrLn " "
+	putStrLn ("Se han jugado " ++ (show (jugadas)) ++ " partidas.")
+	putStrLn ("Jack Lambda ha ganado " ++ (show (vLambda)) ++ " partidas.")
+	putStrLn (nombreJ ++ " ha ganado " ++ (show (vJugador)) ++ " partidas.")
+	putStrLn (nombreJ ++ " tiene " ++ (show (dineroJ)) ++ " de dinero.")
+	putStrLn " "
+	putStrLn "1.- Jugar Ronda"
+	putStrLn "2.- Guardar Partida"
+	putStrLn "3.- Cargar Partida"
+	putStrLn "4.- Salir"
+	putStrLn "Ingrese el número asociado a la opción deseada: "
+	answer <- getLine
 
-				case answer of
-					"1" -> jugarRonda state
-					"2" -> guardarPartida state
-					"3" -> cargarPartida 
-					"4" -> salirJuego
+	case answer of
+		"1" -> jugarRonda state
+		"2" -> guardarPartida state
+		"3" -> cargarPartida 
+		"4" -> salirJuego
 
 jugarRonda :: GameState -> IO ()
 jugarRonda state = do 
@@ -135,17 +134,14 @@ menuPartida state mazoContinue manoJugador manoLambda manoOriginal = do
 			putStrLn ("4.- Surrender (Rendirse)")
 			putStrLn (" ")
 			answer <- getLine
-
 			case answer of 
 				"1" -> hit state mazoContinue manoJugador manoLambda manoOriginal False
 				"2" -> stand state mazoContinue manoJugador manoLambda manoOriginal 0
 				"3" -> doubleDown state mazoContinue manoJugador manoLambda manoOriginal
 				"4" -> surrender state mazoContinue manoJugador manoLambda manoOriginal
-
 		else do
 			putStrLn (" ")
 			answer <- getLine
-
 			case answer of 
 				"1" -> hit state mazoContinue manoJugador manoLambda manoOriginal False
 				"2" -> stand state mazoContinue manoJugador manoLambda manoOriginal 0
@@ -155,16 +151,13 @@ menuPartida state mazoContinue manoJugador manoLambda manoOriginal = do
 			putStrLn ("3.- Surrender (Rendirse)")
 			putStrLn (" ")
 			answer <- getLine
-
 			case answer of 
 				"1" -> hit state mazoContinue manoJugador manoLambda manoOriginal False
 				"2" -> stand state mazoContinue manoJugador manoLambda manoOriginal 0
 				"3" -> surrender state mazoContinue manoJugador manoLambda manoOriginal
-
 		else do
 			putStrLn (" ")
 			answer <- getLine
-
 			case answer of 
 				"1" -> hit state mazoContinue manoJugador manoLambda manoOriginal False
 				"2" -> stand state mazoContinue manoJugador manoLambda manoOriginal 0
@@ -233,26 +226,26 @@ doubleDown state mazoContinue manoJugador manoLambda manoOriginal = do
 
 ganaste :: GameState -> Int -> IO ()
 ganaste state b = do 
-				putStrLn ("Tu ganas.")
-				let ganancia = (apuesta state) * 2 * (1 + b)
-				putStrLn ("")			
-				let newDinero = (dinero state) + ganancia
-				if (newDinero > (objetivo state)) then do
-					putStrLn ("Felicidades, " ++ (nombre state) ++ ", me has derrotado. Es el fin del juego para mí.")
-					salirJuego
-				else do
-					let newState = GS (juegosJugados state) (victoriasLambda state) (nombre state) (generador state) (newDinero) (objetivo state) (apuesta state)
-					gameMenu newState
+	putStrLn ("Tu ganas.")
+	let ganancia = (apuesta state) * 2 * (1 + b)
+	putStrLn ("")			
+	let newDinero = (dinero state) + ganancia
+	if (newDinero > (objetivo state)) then do
+		putStrLn ("Felicidades, " ++ (nombre state) ++ ", me has derrotado. Es el fin del juego para mí.")
+		salirJuego
+	else do
+		let newState = GS (juegosJugados state) (victoriasLambda state) (nombre state) (generador state) (newDinero) (objetivo state) (apuesta state)
+		gameMenu newState
 
 perdiste :: GameState -> IO ()
 perdiste state = 
-				if ((dinero state) > (apuesta state)) then do
-					let newVictoriasLambda = (victoriasLambda state) + 1
-					let newState = GS (juegosJugados state) (newVictoriasLambda) (nombre state) (generador state) (dinero state) (objetivo state) (apuesta state)
-					gameMenu newState
-				else do
-					putStrLn ((nombre state) ++ ", no te queda dinero. Es el fin del juego para ti.")
-					salirJuego
+	if ((dinero state) > (apuesta state)) then do
+		let newVictoriasLambda = (victoriasLambda state) + 1
+		let newState = GS (juegosJugados state) (newVictoriasLambda) (nombre state) (generador state) (dinero state) (objetivo state) (apuesta state)
+		gameMenu newState
+	else do
+		putStrLn ((nombre state) ++ ", no te queda dinero. Es el fin del juego para ti.")
+		salirJuego
 
 surrender :: GameState -> Mazo -> Mano -> Mano -> Mano -> IO ()
 surrender state mazoContinue manoJugador manoLambda manoOriginal = do
@@ -266,26 +259,18 @@ surrender state mazoContinue manoJugador manoLambda manoOriginal = do
 	else do
 		menuPartida newState mazoContinue manoJugador manoLambda manoOriginal
 
-{-
-let manoMazoTupla = robarFase manoJugador resto
-		if manoMazoTupla == Nothing then do
-            let manoMazoReconstruido = reconstruir resto (fst manoMazoTupla) 
-		else do
-			let manoMazoTupla1 = justToValue manoMazoTupla
--}
-
 robarFase :: Mano -> Mano -> IO (Maybe (Mazo, Mano))
 robarFase manoJugador resto = do 
-		let mazo = desdeMano resto
-		putStrLn ("El mazo fue dividido. Qué mitad escoge? (Derecho/Izquierdo)")
-		elec <- getLine 
-		if ((elec /= "Derecho") && (elec /= "Izquierdo")) then do
-				putStrLn ("Ingrese una opción válida. (Derecho/Izquierdo)")
-				robarFase manoJugador resto
-		else do
-			let eleccion = read (elec) :: Eleccion
-			let robarTupla1 = robar mazo manoJugador eleccion
-			return robarTupla1
+	let mazo = desdeMano resto
+	putStrLn ("El mazo fue dividido. Qué mitad escoge? (Derecho/Izquierdo)")
+	elec <- getLine 
+	if ((elec /= "Derecho") && (elec /= "Izquierdo")) then do
+			putStrLn ("Ingrese una opción válida. (Derecho/Izquierdo)")
+			robarFase manoJugador resto
+	else do
+		let eleccion = read (elec) :: Eleccion
+		let robarTupla1 = robar mazo manoJugador eleccion
+		return robarTupla1
 
 justToValueMano :: Maybe Mano -> Mano
 justToValueMano (Just a) = a
@@ -317,4 +302,3 @@ cargarPartida = do
 salirJuego :: IO ()
 salirJuego = do 
 	putStrLn "Gracias por jugar."
---	ExitCode ExitSucess

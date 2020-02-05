@@ -1,10 +1,11 @@
 {-
 BLACKJACK MODULO
 Autores:
+-- Jesus Kauze #12-10273
 -- David Segura #13-11341
--- Ian Goldberg
-
+-- Ian Goldberg #14-10406
 -}
+
 module Carta
 ( vacia
 , baraja
