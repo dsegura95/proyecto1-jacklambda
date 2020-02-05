@@ -32,7 +32,7 @@ module Carta
 import System.Random
 import Data.List
 
--- CARTAS
+---------- TIPOS DE DATOS: CARTA Y SUS INSTANCIAS ----------
 data Palo = Treboles | Diamantes | Picas | Corazones deriving (Enum,Eq)
 
 instance Show Palo where
@@ -58,15 +58,15 @@ data Carta = Carta {
 instance Show Carta where
     show (Carta rango palo) = show palo ++ show rango
 
--- JUGADOR
+---------- TIPOS DE DATOS: JUGADOR Y SUS INSTANCIAS ----------
 
-data Jugador = Dealer | Player deriving Read -- PENDIENTE
+data Jugador = Dealer | Player deriving Read
 
 instance Show Jugador where
     show Dealer = "Dealer"
     show Player = "Player"
 
--- MANO
+---------- TIPOS DE DATOS: MANO, SUS INSTANCIAS Y FUNCIONES ----------
 
 newtype Mano = Mano [Carta] deriving (Show,Eq)
 
@@ -84,28 +84,6 @@ baraja = Mano[ Carta x y | x <- rangoc, y <- paloc ]
 cantidadCartas :: Mano -> Int
 cantidadCartas (Mano a) = length a
 
--- Auxiliar
-valorUnaCarta :: Carta -> Int
-valorUnaCarta (Carta rango palo) = case rango of
-    Ace -> 11
-    (N x) -> x
-    _ -> 10
-
--- Auxiliar
-numberOfA :: Mano -> Int
-numberOfA (Mano m) = length (filter (== 11) (map valorUnaCarta m))
-
--- Auxiliar
-valorSinA :: Mano -> Int
-valorSinA (Mano m) = foldl (+) 0 (map valorUnaCarta m)
-
-{- Función que aproxima la mano a la realidad, donde con AA9 se puede conseguir 21
-valorMasExacto :: Int -> Int -> Int
-valorA m 0 = m
-valorA m a = if m > 21 then (valorA (m-10) (a-1)) else m
--}
-
--- Auxiliar
 manoLista :: Mano -> [Carta]
 manoLista (Mano m) = m
 
@@ -118,14 +96,6 @@ busted a = if valor a > 21 then True else False
 blackjack :: Mano -> Bool
 blackjack m = if courtCards m && valor m == 21 && cantidadCartas m == 2 then True else False
 
--- Auxiliar
-courtCards :: Mano -> Bool
-courtCards (Mano []) = False
-courtCards (Mano ((Carta rango palo):xs)) | rango == Jack = True
-                                          | rango == Queen = True
-                                          | rango == King = True
-                                          | otherwise = courtCards(Mano xs)
-
 ganador :: Mano -> Mano -> Jugador
 ganador dealer jugador | valor dealer > valor jugador = Dealer
                        | valor jugador > valor dealer = Player
@@ -137,17 +107,39 @@ separar (Mano cartas) = if odd c
                         else (Mano (tomar1Mitad cartas (div c 2)),cartas !! (div c 2),Mano (tomar2Mitad cartas ((div c 2)-1)))
                         where c = cantidadCartas (Mano cartas)
 
--- Auxiliar
-tomar1Mitad :: [Carta] -> Int -> [Carta]
-tomar1Mitad list n = if length list > n then tomar1Mitad (init list) n else list
--- Auxiliar
-tomar2Mitad :: [Carta] -> Int -> [Carta]
-tomar2Mitad list n = if length list > n then tomar2Mitad (tail list) n else list
-
 barajar :: StdGen -> Mano -> Mano
 barajar gen m = barajarListas gen m (Mano [])
 
--- Auxiliar
+inicialLambda :: Mano -> (Mano, Mano)
+inicialLambda (Mano m) = (Mano (take 2 m), Mano (drop 2 m))
+
+---------- FUNCIONES AUXILIARES DE MANO ----------
+
+valorUnaCarta :: Carta -> Int
+valorUnaCarta (Carta rango palo) = case rango of
+    Ace -> 11
+    (N x) -> x
+    _ -> 10
+
+numberOfA :: Mano -> Int
+numberOfA (Mano m) = length (filter (== 11) (map valorUnaCarta m))
+
+valorSinA :: Mano -> Int
+valorSinA (Mano m) = foldl (+) 0 (map valorUnaCarta m)
+
+courtCards :: Mano -> Bool
+courtCards (Mano []) = False
+courtCards (Mano ((Carta rango palo):xs)) | rango == Jack = True
+                                          | rango == Queen = True
+                                          | rango == King = True
+                                          | otherwise = courtCards(Mano xs)
+
+tomar1Mitad :: [Carta] -> Int -> [Carta]
+tomar1Mitad list n = if length list > n then tomar1Mitad (init list) n else list
+
+tomar2Mitad :: [Carta] -> Int -> [Carta]
+tomar2Mitad list n = if length list > n then tomar2Mitad (tail list) n else list
+
 barajarListas :: StdGen -> Mano -> Mano -> Mano
 barajarListas gen (Mano []) acum = acum
 barajarListas gen (Mano m) (Mano acum) = barajarListas gen (Mano newM) (Mano newAcum)
@@ -156,10 +148,14 @@ barajarListas gen (Mano m) (Mano acum) = barajarListas gen (Mano newM) (Mano new
           newAcum = cartaAleatoria:acum
           newM = delete cartaAleatoria m
 
-inicialLambda :: Mano -> (Mano, Mano)
-inicialLambda (Mano m) = (Mano (take 2 m), Mano (drop 2 m))
+{- Función que aproxima la mano a la realidad, donde con AA9 se puede conseguir 21
+valorMasExacto :: Int -> Int -> Int
+valorA m 0 = m
+valorA m a = if m > 21 then (valorA (m-10) (a-1)) else m
+-}
 
---------------------------------- MAZO --------------------------------- 
+---------- TIPOS DE DATOS: MAZO, SUS INSTANCIAS Y FUNCIONES ----------
+
 data Mazo = Vacio | Mitad Carta Mazo Mazo deriving (Show, Eq)
 
 data Eleccion = Izquierdo | Derecho deriving Read
@@ -172,29 +168,12 @@ desdeMano (Mano m) = Mitad carta (desdeMano mazo1) (desdeMano mazo2)
           mazo1 = fst3 tripla
           mazo2 = trd3 tripla
 
--- Auxiliar
-fst3 :: (Mano,Carta,Mano) -> Mano
-fst3 (a,b,c) = a
--- Auxiliar
-snd3 :: (Mano,Carta,Mano) -> Carta
-snd3 (a,b,c) = b
--- Auxiliar
-trd3 :: (Mano,Carta,Mano) -> Mano
-trd3 (a,b,c) = c 
-
 puedePicar :: Mazo -> Bool
 puedePicar Vacio = False
 puedePicar (Mitad carta mazo1 mazo2) = if mazo1 /= Vacio && mazo2 /= Vacio then True else False 
 
 aplanar :: Mazo -> Mano
 aplanar m = Mano (reverse (aplanarM m []))
-
---Auxiliar
-aplanarM :: Mazo -> [Carta] -> [Carta]
-aplanarM (Mitad carta Vacio Vacio) m = carta:m
-aplanarM (Mitad carta mazo1 Vacio) m = carta:(aplanarM mazo1 m)
-aplanarM (Mitad carta mazo1 mazo2) m = aplanarM mazo2 mano1
-    where mano1 = carta:(aplanarM mazo1 m) 
 
 reconstruir :: Mazo -> Mano -> Mazo
 reconstruir mazo (Mano mano) = desdeMano (Mano (reverse(aplanarM mazo []) \\ mano))
@@ -204,15 +183,30 @@ robar Vacio jugador _ = Nothing
 robar (Mitad carta mazo1 mazo2) jugador Derecho = if mazo2 /= Vacio then Just (mazo2, (incluir carta jugador)) else Just (Vacio, (incluir carta jugador))
 robar (Mitad carta mazo1 mazo2) jugador Izquierdo = if mazo1 /= Vacio then Just (mazo1, (incluir carta jugador)) else Just (Vacio, (incluir carta jugador))
 
---Auxiliar
-incluir :: Carta -> Mano ->  Mano
-incluir carta (Mano m) = Mano (carta:m)
-
 juegaLambda :: Mazo -> Mano -> Maybe Mano
 juegaLambda Vacio dealer = Nothing
 juegaLambda mazo dealer = if valor dealer > 15 then Just dealer else juegaLambda (reconstruir mazo newDealer) newDealer
     where newDealer = incluir (primeraCartaMazo mazo) dealer
 
---Auxiliar
+---------- FUNCIONES AUXILIARES DE MAZO ----------
+
+fst3 :: (Mano,Carta,Mano) -> Mano
+fst3 (a,b,c) = a
+
+snd3 :: (Mano,Carta,Mano) -> Carta
+snd3 (a,b,c) = b
+
+trd3 :: (Mano,Carta,Mano) -> Mano
+trd3 (a,b,c) = c 
+
+aplanarM :: Mazo -> [Carta] -> [Carta]
+aplanarM (Mitad carta Vacio Vacio) m = carta:m
+aplanarM (Mitad carta mazo1 Vacio) m = carta:(aplanarM mazo1 m)
+aplanarM (Mitad carta mazo1 mazo2) m = aplanarM mazo2 mano1
+    where mano1 = carta:(aplanarM mazo1 m) 
+
+incluir :: Carta -> Mano ->  Mano
+incluir carta (Mano m) = Mano (carta:m)
+
 primeraCartaMazo :: Mazo -> Carta
 primeraCartaMazo (Mitad carta mazo1 mazo2) = carta
