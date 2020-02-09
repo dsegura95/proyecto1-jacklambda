@@ -35,8 +35,7 @@ A continuacion se detallaran las mismas:
 
 - mainLoop :: IO ()
 
-Funciones de Mano:
-
+**Funciones de Mano:**
 - numberOfA :: Mano -> Int
 
 - valorSinA :: Mano -> Int
@@ -49,7 +48,7 @@ Funciones de Mano:
 
 - barajarListas :: StdGen -> Mano -> Mano -> Mano
 
-Funciones de Mazo:
+**Funciones de Mazo:**
 
 - fst3 :: (Mano,Carta,Mano) -> Mano
 
